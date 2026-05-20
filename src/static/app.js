@@ -66,10 +66,20 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchActivities() {
     try {
       const response = await fetch("/activities", { cache: "no-store" });
-      activitiesData = await response.json();
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.detail || "Failed to load activities.");
+      }
+
+      activitiesData = result;
       renderActivities();
     } catch (error) {
-      activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
+      const errorMessage =
+        error instanceof Error && error.message
+          ? error.message
+          : "Failed to load activities. Please try again later.";
+      activitiesList.innerHTML = `<p>${escapeHtml(errorMessage)}</p>`;
       console.error("Error fetching activities:", error);
     }
   }
